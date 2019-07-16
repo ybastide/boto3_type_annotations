@@ -213,7 +213,7 @@ def write_client(client: Client, config: Config):
         )
     file_path = f"{normalized_repository_path()}/{config.package_name}/{config.module_name}/{normalized_module_name}" f"/client.py"
     with open(file_path, "w") as file_object:
-        file_object.write("# fmt: off\n")
+        write_prologue(file_object)
         types = retrieve_types_from_client(client).union({Optional, BaseClient, Union})
         file_object.write("\n".join(list(create_import_statements(types))))
         file_object.write(f"\n\n\nclass Client(BaseClient):")
@@ -224,6 +224,11 @@ def write_client(client: Client, config: Config):
             "name": "Client",
         }
     ]
+
+
+def write_prologue(file_object):
+    file_object.write("# coding: utf-8\n")
+    file_object.write("# fmt: off\n")
 
 
 def write_import_statements(file_object, types: Set[type]):
@@ -298,7 +303,7 @@ def write_service_resource(
         )
     file_path = f"{normalized_repository_path()}/{config.package_name}/{config.module_name}/{normalized_module_name}/" f"service_resource.py"
     with open(file_path, "w") as file_object:
-        file_object.write("# fmt: off\n")
+        write_prologue(file_object)
         types = retrieve_types_from_service_resource(service_resource).union(
             {List, Dict, ResourceCollection, Optional, Union}
         )
@@ -377,7 +382,7 @@ def write_service_waiter(service_waiter: ServiceWaiter, config: Config) -> List[
     file_path = f"{normalized_repository_path()}/{config.package_name}/{config.module_name}/{normalized_module_name}" f"/waiter.py"
     if service_waiter.waiters:
         with open(file_path, "w") as file_object:
-            file_object.write("# fmt: off\n")
+            write_prologue(file_object)
             types = {Optional}
             for waiter in service_waiter.waiters:
                 types = types.union(retrieve_types_from_methods(waiter.methods))
@@ -409,7 +414,7 @@ def write_service_paginator(service_paginator: ServicePaginator, config: Config)
     file_path = f"{normalized_repository_path()}/{config.package_name}/{config.module_name}/{normalized_module_name}" f"/paginator.py"
     if service_paginator.paginators:
         with open(file_path, "w") as file_object:
-            file_object.write("# fmt: off\n")
+            write_prologue(file_object)
             types = {Optional}
             for paginator in service_paginator.paginators:
                 types = types.union(retrieve_types_from_methods(paginator.methods))
