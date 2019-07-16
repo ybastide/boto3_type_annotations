@@ -135,6 +135,8 @@ def normalize_type_name(type_: Union[type, Tuple, str], required: bool = True):
         )
 
     type_name = get_base_type()
+    if type_name.startswith("'"):
+        type_name = type_name[1:-1]
     if not required and type_ != Optional:
         type_name = f"Optional[{type_name}]"
     return type_name
@@ -196,7 +198,7 @@ def retrieve_method_types(methods: List[Method]) -> Generator[Set, None, None]:
 def write_attributes(attributes: List[Attribute], file_object: IO):
     for attribute in attributes:
         file_object.write(
-            f"\n    {attribute.name}  # type: {normalize_type_name(attribute.type)}"
+            f"\n    {attribute.name} = None  # type: {normalize_type_name(attribute.type)}"
         )
 
 
@@ -356,7 +358,7 @@ def write_resource(
 
     file_object.write(f"\n\nclass {name}(base.ServiceResource):")
     attributes = resource.attributes
-    attributes += [Attribute(c.name, f"'{c.name}'") for c in resource.collections]
+    attributes += [Attribute(c.name, f"{c.name}") for c in resource.collections]
     write_attributes(attributes, file_object)
     file_object.write("\n")
     write_methods(resource.methods, file_object, include_doc=with_docs)
@@ -376,7 +378,7 @@ def write_service_waiter(service_waiter: ServiceWaiter, config: Config) -> List[
     if service_waiter.waiters:
         with open(file_path, "w") as file_object:
             file_object.write("# fmt: off\n")
-            types = set()
+            types = {Optional}
             for waiter in service_waiter.waiters:
                 types = types.union(retrieve_types_from_methods(waiter.methods))
             write_import_statements(file_object, types)
@@ -408,7 +410,7 @@ def write_service_paginator(service_paginator: ServicePaginator, config: Config)
     if service_paginator.paginators:
         with open(file_path, "w") as file_object:
             file_object.write("# fmt: off\n")
-            types = set()
+            types = {Optional}
             for paginator in service_paginator.paginators:
                 types = types.union(retrieve_types_from_methods(paginator.methods))
             write_import_statements(file_object, types)
@@ -455,7 +457,7 @@ def write_init_files(init_files: Dict[str, List], config: Config):
                 file_object.write(
                     "\n".join([i.get("import_statement") for i in imports])
                 )
-                all_objects = ",\n".join(f'    \'{i.get("name")}\'' for i in imports)
+                all_objects = ",\n".join(f'    "{i.get("name")}"' for i in imports)
                 file_object.write(
                     f"""
     
