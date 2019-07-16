@@ -1,0 +1,15 @@
+services:
+  - ec2
+  - lambda
+  - s3
+  - swf
+with_docs: true
+with_clients: true
+with_service_resources: true
+with_paginators: true
+with_waiters: true
+package_name: boto3_type_annotations_essentials
+module_name: boto3_type_annotations
+version: 0.1.0
+readme: "README.md"
+license: "LICENSE"
