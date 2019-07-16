@@ -98,7 +98,7 @@ def create_module_directory(config: Config):
 
 def format_arguments(method) -> Generator[str, None, None]:
     for argument in sorted(method.arguments, key=lambda m: m.required, reverse=True):
-        _type = normalize_type_name(argument.type)
+        _type = normalize_type_name(argument.type, argument.required)
         default = "" if argument.required else "=None"
         yield f"{argument.name}{default},  # type: {_type}"
 
@@ -114,22 +114,30 @@ def normalize_module_name(name: str) -> str:
     return name
 
 
-def normalize_type_name(type_: Union[type, Tuple, str]):
-    if isinstance(type_, tuple):
-        return f'Union[{", ".join([normalize_type_name(t) for t in type_])}]'
-    if isinstance(type_, str):
-        return type_
-    if type_ == Union:
-        return "Union"
-    if type_ == Optional:
-        return "Optional"
-    if type_ is None:
-        return "None"
-    return (
-        type_._name
-        if hasattr(type_, "_name") and not hasattr(type_, "__name__")
-        else type_.__name__
-    )
+def normalize_type_name(type_: Union[type, Tuple, str], required: bool = True):
+    def get_base_type():
+        if isinstance(type_, tuple):
+            return (
+                f'Union[{", ".join([normalize_type_name(t, required) for t in type_])}]'
+            )
+        if isinstance(type_, str):
+            return type_
+        if type_ == Union:
+            return "Union"
+        if type_ == Optional:
+            return "Optional"
+        if type_ is None:
+            return "None"
+        return (
+            type_._name
+            if hasattr(type_, "_name") and not hasattr(type_, "__name__")
+            else type_.__name__
+        )
+
+    type_name = get_base_type()
+    if not required and type_ != Optional:
+        type_name = f"Optional[{type_name}]"
+    return type_name
 
 
 def retrieve_argument_types(method: Method) -> Set[type]:
@@ -462,25 +470,27 @@ def write_setup(config: Config):
             f"""
 from setuptools import setup, find_packages
 
-with open('../README.md', 'r') as f:
+with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name='{config.package_name}',
-    version='{config.version}',
+    name="{config.package_name}",
+    version="{config.version}",
     packages=find_packages(),
-    url='https://github.com/alliefitter/boto3_type_annotations',
-    license='MIT License',
-    author='Allie Fitter',
-    author_email='fitterj@gmail.com',
-    description='Type annotations for boto3. Adds code completion in IDEs such as PyCharm.',
+    url="https://github.com/ybastide/boto3_type_annotations",
+    license="MIT License",
+    author="Allie Fitter",
+    author_email="fitterj@gmail.com",
+    description="Type annotations for boto3. Adds code completion in IDEs such as PyCharm.",
     classifiers=(
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent"
     ),
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
 )
 """
         )
