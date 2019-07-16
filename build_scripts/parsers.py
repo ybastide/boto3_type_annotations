@@ -13,7 +13,7 @@ from botocore.docs.method import get_instance_public_methods
 from botocore.exceptions import UnknownServiceError
 from botocore.paginate import PaginatorModel
 from docstring_parser import parse
-from docstring_parser.parser import DocstringMeta
+from docstring_parser.parser.common import DocstringMeta
 
 from structures import Argument, Method, Client, Attribute, Resource, Collection, ServiceResource, Waiter, \
     ServiceWaiter, Paginator, ServicePaginator, Config
@@ -120,7 +120,8 @@ def parse_client_types(session: Session) -> Set[str]:
     for name in session.get_available_services():
         print(f'Parsing: {name}')
         client = session.client(name)
-        types = types.union(types.union(parse_method_types(get_instance_public_methods(client))))
+        types = types.union(types.union(
+            parse_method_types(get_instance_public_methods(client))))
     return types
 
 
@@ -128,7 +129,8 @@ def parse_collections(resource: Boto3ServiceResource) -> Generator[Collection, N
     for collection in resource.meta.resource_model.collections:
         yield Collection(
             collection.name,
-            list(parse_methods(get_instance_public_methods(getattr(resource, collection.name))))
+            list(parse_methods(get_instance_public_methods(
+                getattr(resource, collection.name))))
         )
 
 
@@ -181,9 +183,11 @@ def parse_return_type(meta: List[DocstringMeta]) -> Union[str, None]:
     return_type = None
     if any([m.args[0] == 'rtype' for m in meta]):
         try:
-            return_type = parse_type_from_str(next(filter(lambda m: m.args[0] == 'rtype', meta)).description)
+            return_type = parse_type_from_str(
+                next(filter(lambda m: m.args[0] == 'rtype', meta)).description)
         except StopIteration:
-            print(next(filter(lambda m: m.args[0] == 'rtype', meta)).description)
+            print(
+                next(filter(lambda m: m.args[0] == 'rtype', meta)).description)
     return return_type
 
 
@@ -194,9 +198,11 @@ def parse_service_resources(session: Session, config: Config) -> Generator[Servi
         yield ServiceResource(
             resource_name,
             list(parse_methods(get_instance_public_methods(service_resource))),
-            list(parse_attributes(service_resource)) + list(parse_identifiers(service_resource)),
+            list(parse_attributes(service_resource)) +
+            list(parse_identifiers(service_resource)),
             list(parse_collections(service_resource)),
-            [parse_resource(resource) for resource in retrieve_sub_resources(session, service_resource)]
+            [parse_resource(resource) for resource in retrieve_sub_resources(
+                session, service_resource)]
         )
 
 
@@ -204,15 +210,19 @@ def parse_service_resource_types(session: Session) -> Set[str]:
     types = set()
     for resource_name in session.get_available_resources():
         service_resource = session.resource(resource_name)
-        types = types.union(parse_method_types(get_resource_public_actions(service_resource)))
+        types = types.union(parse_method_types(
+            get_resource_public_actions(service_resource)))
         types = types.union(parse_attribute_types(service_resource))
         for collection in service_resource.meta.resource_model.collections:
-            types = types.union(parse_method_types(get_instance_public_methods(getattr(service_resource, collection.name))))
+            types = types.union(parse_method_types(
+                get_instance_public_methods(getattr(service_resource, collection.name))))
         for resource in retrieve_sub_resources(session, service_resource):
-            types = types.union(parse_method_types(get_resource_public_actions(resource.__class__)))
+            types = types.union(parse_method_types(
+                get_resource_public_actions(resource.__class__)))
             types = types.union(parse_attribute_types(resource))
             for collection in resource.meta.resource_model.collections:
-                types = types.union(parse_method_types(get_instance_public_methods(getattr(resource, collection.name))))
+                types = types.union(parse_method_types(
+                    get_instance_public_methods(getattr(resource, collection.name))))
     return types
 
 
@@ -244,7 +254,8 @@ def parse_service_paginators(session: Session, config: Config) -> Generator[Serv
     for name in [service for service in session.get_available_services() if service in config.services]:
         client = session.client(name)
         if name in session._loader.list_available_services('paginators-1'):
-            service_paginator_model = session._session.get_paginator_model(name)
+            service_paginator_model = session._session.get_paginator_model(
+                name)
             print(f'Parsing: {name}')
             yield ServicePaginator(
                 name,
@@ -269,7 +280,8 @@ def retrieve_sub_resources(session, resource) -> Generator[Boto3ServiceResource,
     )
     service_model = resource.meta.client.meta.service_model
     try:
-        service_waiter_model = session._session.get_waiter_model(service_model.service_name)
+        service_waiter_model = session._session.get_waiter_model(
+            service_model.service_name)
     except UnknownServiceError:
         service_waiter_model = None
     for name in json_resource_model['resources']:
