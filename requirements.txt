@@ -1,6 +1,6 @@
 boto3
 botocore
-docstring
+docstring-parser
 docutils
 jmespath
 python-dateutil
