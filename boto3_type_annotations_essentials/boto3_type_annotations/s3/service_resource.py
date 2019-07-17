@@ -1,13 +1,13 @@
 # coding: utf-8
 # fmt: off
 from boto3.resources.collection import ResourceCollection
-from typing import Callable
+from typing import Dict
 from typing import IO
 from botocore.client import BaseClient
-from typing import Dict
-from boto3.s3.transfer import TransferConfig
-from typing import Optional
+from typing import Callable
 from typing import List
+from typing import Optional
+from boto3.s3.transfer import TransferConfig
 from typing import Union
 from datetime import datetime
 from boto3.resources import base

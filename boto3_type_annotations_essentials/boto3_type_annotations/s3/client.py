@@ -1,16 +1,16 @@
 # coding: utf-8
 # fmt: off
-from typing import List
-from typing import Callable
+from typing import Dict
+from typing import Union
 from typing import Optional
+from boto3.s3.transfer import TransferConfig
 from typing import IO
 from datetime import datetime
-from boto3.s3.transfer import TransferConfig
 from botocore.client import BaseClient
 from botocore.waiter import Waiter
-from typing import Dict
+from typing import Callable
 from botocore.paginate import Paginator
-from typing import Union
+from typing import List
 
 
 class Client(BaseClient):

@@ -1,9 +1,9 @@
 # coding: utf-8
 # fmt: off
-from typing import List
+from typing import Dict
 from typing import Optional
 from datetime import datetime
-from typing import Dict
+from typing import List
 from botocore.paginate import Paginator
 
 

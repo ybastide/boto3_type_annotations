@@ -2,8 +2,8 @@
 # fmt: off
 from boto3.resources.collection import ResourceCollection
 from typing import Dict
-from typing import Optional
 from typing import List
+from typing import Optional
 from typing import Union
 from datetime import datetime
 from boto3.resources import base

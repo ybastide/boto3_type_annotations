@@ -1,7 +1,7 @@
 # coding: utf-8
 # fmt: off
-from typing import Optional
 from typing import Dict
+from typing import Optional
 from typing import List
 from botocore.waiter import Waiter
 

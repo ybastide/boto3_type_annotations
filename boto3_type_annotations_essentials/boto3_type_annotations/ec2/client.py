@@ -1,13 +1,13 @@
 # coding: utf-8
 # fmt: off
-from typing import List
+from typing import Dict
+from typing import Union
 from typing import Optional
 from datetime import datetime
 from botocore.client import BaseClient
 from botocore.waiter import Waiter
-from typing import Dict
+from typing import List
 from botocore.paginate import Paginator
-from typing import Union
 
 
 class Client(BaseClient):

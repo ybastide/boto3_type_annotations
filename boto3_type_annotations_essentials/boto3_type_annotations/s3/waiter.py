@@ -1,8 +1,8 @@
 # coding: utf-8
 # fmt: off
-from datetime import datetime
 from typing import Dict
 from typing import Optional
+from datetime import datetime
 from botocore.waiter import Waiter
 
 
